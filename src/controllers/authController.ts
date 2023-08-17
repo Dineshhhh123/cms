@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
 import User from '../models/user';
 import Session from '../models/session';
-import crypto from 'crypto';
+import * as jwt from 'jsonwebtoken'
+const secretKey = 'your-secret-key';
 
 
 export const createSession = async (req: Request, res: Response) => {
@@ -33,7 +34,7 @@ export const login = async (req: Request, res: Response) => {
       return;
     }
 
-    const token = generateUniqueToken(); 
+    const token = jwt.sign({userId:user.id},secretKey); 
     const session = await Session.create({ userId: user.id, token });
 
     res.status(200).json(session);
@@ -42,15 +43,7 @@ export const login = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to log in.' });
   }
 };
-const generateUniqueToken = (): string => {
-    const tokenLength = 32; 
-  
-    const token = crypto.randomBytes(tokenLength).toString('hex');
-  
-    return token;
-  };
-  
-  export default generateUniqueToken;
+
 
 export const registerUser = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;

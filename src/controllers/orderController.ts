@@ -41,8 +41,6 @@ export const placeOrder = async (req: Request, res: Response) => {
         }
         const data = await User.findByPk(order.userId);
         const data1 = await Product.findByPk(order.productId);
-        console.log(data1?.dataValues)
-        let invo=data1?.dataValues;
         const userEmail = data?.email
         const productDetails = data1?.name;
         const quantity = order.quantity;
