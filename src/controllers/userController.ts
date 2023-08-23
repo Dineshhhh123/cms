@@ -4,9 +4,11 @@ import User from '../models/user';
 import Session from '../models/session';
 import * as jwt from 'jsonwebtoken'
 const secretKey = 'your-secret-key';
+import passport from 'passport';
+import Product from '../models/product';
 
-
-export const createSession = async (req: Request, res: Response) => {
+class AuthController{
+  createSession = async (req: Request, res: Response) => {
     try {
       const { userId, token } = req.body;
       const session = await Session.create({ userId, token });
@@ -16,7 +18,7 @@ export const createSession = async (req: Request, res: Response) => {
       res.status(500).json({ error: 'Failed to create session.' });
     }
   };
-export const login = async (req: Request, res: Response) => {
+login = async (req: Request, res: Response) => {
 
   try {
     const { email, password } = req.body;
@@ -44,8 +46,31 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
+socialLoginGmail = passport.authenticate('google', { scope: ['profile', 'email'] });
 
-export const registerUser = async (req: Request, res: Response) => {
+socialLoginGmailCallback = passport.authenticate('google', {
+  session: false,
+  failureRedirect: '/login', 
+});
+
+socialLoginGmailCallbackSuccess = async (req: Request, res: Response) => {
+  try {
+    if (req.user) {
+      const token = jwt.sign({userId:req.user},secretKey); 
+      const session = await Session.create({ userId: req.user, token });
+
+      return res.status(200).json(session);
+    } else {
+      return res.redirect('/register');
+    }
+  } catch (err) {
+    console.error('Error handling social login callback:', err);
+    return res.status(500).json({ error: 'Failed to handle social login callback.' });
+  }
+};
+
+
+registerUser = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
 
   try {
@@ -70,7 +95,7 @@ export const registerUser = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to create user account.' });
   }
 };
-export const getUserById = async (req: Request, res: Response) => {
+getUserById = async (req: Request, res: Response) => {
   const userId = parseInt(req.params.user_id);
 
   try {
@@ -85,3 +110,14 @@ export const getUserById = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to fetch user details.' });
   }
 };
+getall = async(req:Request,res:Response)=>{
+  try {
+    const products = await Product.findAll();
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+}
+
+export default AuthController;
