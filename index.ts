@@ -7,7 +7,8 @@ import userRoutes from './src/routers/userrouter';
 import orderRoutes from './src/routers/orderrouter';
 import reportRoutes from './src/routers/reportrouter';
 import superadminRoutes from './src/routers/superadminrouter';
-
+import User from './src/models/user';
+import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 dotenv.config();
 
 import passport from 'passport';
@@ -39,3 +40,38 @@ const port = process.env.PORT;
     console.error('Unable to connect to the database:', err);
   }
 })();
+
+
+app.use(passport.initialize());
+
+
+passport.use('google',
+  new GoogleStrategy(
+    {
+      clientID: '456160802654-7fbksplkd8c4nnnurrtnom1ficei0sup.apps.googleusercontent.com',
+      clientSecret: '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',
+      callbackURL: '/auth/google/callback', 
+    },
+    async (accessToken, refreshToken, profile: Profile, done) => {
+      try {
+        // Check if the user's email exists in your database
+        const existingUser = await User.findOne({ where: { email: profile.emails?.[0].value } });
+
+        if (existingUser) {
+          return done(null, existingUser);
+        } else {
+          // User does not exist, create a new user based on the profile data
+          const newUser = await User.create({
+            email: profile.emails?.[0].value,
+            // Set other properties as needed
+          });
+
+          return done(null, newUser);
+        }
+      } catch (error) {
+        console.error('Error handling social login callback:', error);
+        return done('Error handling social login callback:');
+      }
+    }
+  )
+);

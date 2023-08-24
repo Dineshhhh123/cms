@@ -2,8 +2,7 @@ import { Request, Response } from 'express';
 import { Op } from 'sequelize'; 
 import Order from '../models/order';
 import User from '../models/user';
-import Helper from '../helpers/helper';
-const helper = new Helper();
+import { invoice } from '../helpers/invoice';
 
 class orderController{
   placeOrder = async (req: Request, res: Response) => {
@@ -33,7 +32,7 @@ class orderController{
       res.status(201).json(order);
       
         const  orderId  = order.id;
-      await helper.invoice(orderId);
+      await invoice(orderId);
         
       
     } catch (err) {
@@ -71,7 +70,7 @@ class orderController{
         createdOrders.push(order);
         
         const orderId = order.id;
-        await helper.invoice(orderId);
+        await invoice(orderId);
       }
 
       res.status(201).json(createdOrders);

@@ -5,9 +5,7 @@ import fs from 'fs';
 import Order from '../models/order';
 import User from '../models/user';
 import Product from '../models/product';
-import orderController from './orderController';
-import Helper from '../helpers/helper';
-const helper = new Helper();
+import { convertOrdersToCSV } from '../helpers/convertOrderToCSV';
 
 class ReportController{
   generateCSVReport = async (req: Request, res: Response) => {
@@ -23,7 +21,7 @@ class ReportController{
       });
       
   
-      const csvData = helper.convertOrdersToCSV(orders); 
+      const csvData = convertOrdersToCSV(orders); 
       const fileName = 'purchased_orders_report.csv';
       fs.writeFileSync(fileName, csvData, 'utf8');
   

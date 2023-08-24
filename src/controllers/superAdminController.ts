@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import User from '../models/user';
-import Helper from '../helpers/helper';
-const helper = new Helper();
-
+import { sendInvitationEmail } from '../helpers/sendInvitationEmail';
+import { generateRandomPassword } from '../helpers/generateRandomPassword';
 class SuperAdminController{
   createSuperAdmin = async (req: Request, res: Response) => {
     const { name, email, password } = req.body;
@@ -42,7 +41,7 @@ class SuperAdminController{
             res.send({ email, error: 'Staff member with this email already exists.' }); 
           }
     
-          const generatedPassword = helper.generateRandomPassword();
+          const generatedPassword = generateRandomPassword();
     
           const hashedPassword = await bcrypt.hash(generatedPassword, 10);
     
@@ -53,7 +52,7 @@ class SuperAdminController{
             role: 'staff',
           });
     
-          await helper.sendInvitationEmail(email, generatedPassword);
+          await sendInvitationEmail(email, generatedPassword);
         
     
     
