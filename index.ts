@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import * as bodyParser from 'body-parser'
-import { sequelize } from './src/db/config';
+import { sequelize } from './src/config/db';
 import crudRoutes from './src/routers/crudrouter';
 import userRoutes from './src/routers/userrouter';
 import orderRoutes from './src/routers/orderrouter';

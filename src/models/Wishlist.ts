@@ -1,6 +1,6 @@
 
 const { DataTypes, Model } = require('sequelize');
-import sequelize from '../db/config';
+import sequelize from '../config/db';
 
 class Wishlist extends Model {}
 
